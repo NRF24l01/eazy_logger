@@ -1,5 +1,22 @@
 import logging
 
+COLORS = {
+    "DEBUG": "\033[37m",    # Серый
+    "INFO": "\033[36m",     # Голубой
+    "WARNING": "\033[33m",  # Жёлтый
+    "ERROR": "\033[31m",    # Красный
+    "CRITICAL": "\033[41m", # Красный фон
+    "RESET": "\033[0m"
+}
+
+class ColorFormatter(logging.Formatter):
+    def format(self, record):
+        level_name = record.levelname
+        color = COLORS.get(level_name, "")
+        reset = COLORS["RESET"]
+        message = super().format(record)
+        return f"{color}{message}{reset}"
+
 class Logger:
     def __init__(self, filename=None):
         self.filename = filename
@@ -7,7 +24,7 @@ class Logger:
         self.logger.setLevel(logging.DEBUG)
 
         self.console_handler = logging.StreamHandler()
-        self.console_formatter = logging.Formatter(u'%(levelname)s - %(message)s')
+        self.console_formatter = ColorFormatter(u'%(levelname)s - %(message)s')
         self.console_handler.setFormatter(self.console_formatter)
         self.logger.addHandler(self.console_handler)
 
@@ -18,17 +35,15 @@ class Logger:
             self.logger.addHandler(self.file_handler)
 
     def info(self, *args):
-        message = " ".join(map(str, args))
-        self.logger.info(message)
+        self.logger.info(" ".join(map(str, args)))
 
     def warning(self, *args):
-        message = " ".join(map(str, args))
-        self.logger.warning(message)
+        self.logger.warning(" ".join(map(str, args)))
 
     def error(self, *args):
-        message = " ".join(map(str, args))
-        self.logger.error(message)
+        self.logger.error(" ".join(map(str, args)))
 
+# Пример использования
 if __name__ == "__main__":
     logger = Logger()
     logger.info("Это", "информационное", "сообщение", 123)
